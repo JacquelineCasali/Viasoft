@@ -1,59 +1,63 @@
-## Projeto Desafio Back-end PicPay
+## 🛠 Projeto
+Desafio Full-Stack
+O objetivo desse teste é entender quais são as suas habilidades de desenvolvimento, estética e técnicas.
+1. Entidades bases:
+   a. Empresa
+   i. CNPJ
+   ii. Nome Fantasia
+   iii. CEP
+   b. Fornecedor
+   i. CNPJ ou CPF
+   ii. Nome
+   iii. E-mail
+   iv. CEP
+2. Requisitos
+   a. CRUD de todas as entidades (Front-end e Back-end)
+   b. Uma empresa pode ter mais de um fornecedor
+   c. Um fornecedor pode trabalhar para mais de uma empresa
+   d. O CNPJ e CPF deve ser um valor único
+   e. Caso o fornecedor seja pessoa física, também é necessário cadastrar o RG e a data de nascimento
+   f. Caso a empresa seja do Paraná, não permitir cadastrar um fornecedor pessoa física menor de idade
+   g. A listagem de fornecedores deverá conter filtros por Nome e CPF/CNPJ
+   h. Validar CEP na API http://cep.la/api, a validação também deve ser feita no Front-end
+   i. Pode adicionar novas colunas, classes, heranças, entidades de relacionamentos e demais recursos que julgar necessário
+   j. Teste de unidade (opcional)
+   k. Implementar Dockerfile (opcional)
 
 
-## Descrição do projeto
-O PicPay Simplificado é uma plataforma de pagamentos simplificada. 
-Nela é possível depositar e realizar transferências de dinheiro entre usuários. 
-Temos 2 tipos de usuários, os comuns e lojistas, ambos têm carteira com dinheiro e realizam transferências entre eles.
 
-## Imagem do Projeto
 
-![Video_picpay](https://github.com/user-attachments/assets/c265ac36-fb44-4bf4-8c8d-2acc47f6b6a6)
+## 🛠 Imagem do Projeto
 
-## Deploy
-https://back-end-picpay-java.onrender.com/swagger-ui/index.html#
-
-## ⚙️ Funcionalidades
-
-A seguir estão algumas regras de negócio que são importantes para o funcionamento do PicPay Simplificado:
-
-Para ambos tipos de usuário, precisamos do Nome Completo, CPF, e-mail e Senha. CPF/CNPJ e e-mails devem ser únicos no sistema. Sendo assim, seu sistema deve permitir apenas um cadastro com o mesmo CPF ou endereço de e-mail;
-
-Usuários podem enviar dinheiro (efetuar transferência) para lojistas e entre usuários;
-
-Lojistas só recebem transferências, não enviam dinheiro para ninguém;
-
-Validar se o usuário tem saldo antes da transferência;
-
-Antes de finalizar a transferência, deve-se consultar um serviço autorizador externo, use este mock https://util.devi.tools/api/v2/authorize para simular o serviço utilizando o verbo GET;
-
-A operação de transferência deve ser uma transação (ou seja, revertida em qualquer caso de inconsistência) e o dinheiro deve voltar para a carteira do usuário que envia;
-
-No recebimento de pagamento, o usuário ou lojista precisa receber notificação (envio de email, sms) enviada por um serviço de terceiro e eventualmente este serviço pode estar indisponível/instável. Use este mock https://util.devi.tools/api/v1/notify)) para simular o envio da notificação utilizando o verbo POST;
-
-Este serviço deve ser RESTFul
 
 ## 🛠 Tecnologias utilizadas
 
 - **[Java 17]**
-- **[Spring Boot 3]**
+- **[Spring Boot]**
+- **[JPA / Hibernate]**
 - **[Maven]**
-- **[h2-console]**
-- **[Lombok]**
+- **[H2]**
+- **[mysql]**
 - **[Postman]**
-- **[Xampp]**
+- **[springdoc]**
+- **[cors]**
 
-## Para Clonar o projeto
-https://github.com/JacquelineCasali/-Back-end-PicPay-Java.git
+## Como executar o projeto
+
+Pré-requisitos: Java 17
+
+# clonar repositório
+git clone https://github.com/JacquelineCasali/Sistema-para-gerenciar-empresas-e-fornecedores
+
+# entrar na pasta do projeto back end
+
+# executar o projeto
+./mvnw spring-boot:run
+
+Autora
+Jacqueline Casali
+
+https://www.linkedin.com/in/jaquelinecasali/
 
 
-# 📁 Acessar a aplicação
 
-##### Enquanto o servidor está ligado, acesse o navegador e entre no endereço abaixo
-
-# http://localhost:8080/swagger-ui/index.html
-
-
-## 📝 Licença
-
-Projeto desenvolvido por CasaliTech.

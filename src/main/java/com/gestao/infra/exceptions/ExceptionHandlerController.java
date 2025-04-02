@@ -29,7 +29,7 @@ public class ExceptionHandlerController {
     //usuario duplicado
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity duplicate(DataIntegrityViolationException exception){
-        ExceptionDTO exceptionDTO=new ExceptionDTO("Empresa já cadastrada", "400");
+        ExceptionDTO exceptionDTO=new ExceptionDTO(" CNPJ ou CPF já cadastrada", "400");
         return ResponseEntity.badRequest().body(exceptionDTO);
     }
 
