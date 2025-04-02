@@ -1,10 +1,10 @@
 package com.gestao.controller;
 
-import com.gestao.domain.empresa.Empresa;
+import com.gestao.domain.Empresa;
+import com.gestao.domain.Fornecedor;
 import com.gestao.service.EmpresaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,21 +25,30 @@ public class EmpresaController {
     @Operation(summary = "Cadastro de usuário", description = "Essa função é responsável por cadastrar um usuário")
 
 
-    public ResponseEntity create (@Valid @RequestBody Empresa empresa){
-
-       this.empresaService.saveEmpresa(empresa);
+    public ResponseEntity <Empresa>criarEmpresa ( @RequestBody Empresa empresa){
+       this.empresaService.criarEmpresa(empresa);
            return ResponseEntity.status(HttpStatus.CREATED).body(empresa);
-
     }
     @GetMapping
-
-    @Operation(summary = "Lista de usuários", description = "Essa função é responsável por listar os usuários")
-
-    public ResponseEntity <List<Empresa>> getAllUsers(){
-        List<Empresa> users= this.empresaService.getAllEmpresas();
-        return new ResponseEntity<>(users,HttpStatus.OK);
+    public ResponseEntity<List<Empresa>>getAllEmpresa () {
+        List<Empresa> empresas= this.empresaService.getAllEmpresa();
+        return new ResponseEntity<>(empresas,HttpStatus.OK);
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<Empresa> buscarEmpresa(@PathVariable Long id) {
+        return ResponseEntity.ok(empresaService.buscarPorId(id));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Empresa> atualizarEmpresa(@PathVariable Long id, @RequestBody Empresa empresa) {
+        return ResponseEntity.ok(empresaService.atualizarEmpresa(id, empresa));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletarEmpresa(@PathVariable Long id) {
+        empresaService.deletarEmpresa(id);
+        return ResponseEntity.noContent().build();
+    }
     }
 
 
