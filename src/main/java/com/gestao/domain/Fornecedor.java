@@ -1,6 +1,7 @@
 package com.gestao.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;
@@ -9,6 +10,8 @@ import org.hibernate.validator.constraints.Length;
 import java.time.LocalDate;
 
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -38,10 +41,9 @@ public class Fornecedor {
 
     private String rg;
     private LocalDate dataNascimento;
-//@JsonBackReference
-@ManyToMany(mappedBy = "fornecedores")
-    private Set<Empresa> empresas;
 
-
+@ManyToMany(mappedBy="fornecedor")
+@JsonIgnoreProperties("fornecedor")
+    private List<Empresa> empresa;
 
 }

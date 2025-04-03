@@ -1,11 +1,12 @@
 package com.gestao.service;
 
 
+import com.gestao.domain.Empresa;
 import com.gestao.domain.Fornecedor;
 import com.gestao.infra.exceptions.RecursoNaoEncontradoException;
 import com.gestao.infra.exceptions.RegraNegocioException;
+import com.gestao.repository.EmpresaRepository;
 import com.gestao.repository.FornecedorRepository;
-import com.gestao.utils.DocumentoUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,23 +22,37 @@ public class FornecedorService {
     @Autowired
     private FornecedorRepository fornecedorRepository;
 
-    public Fornecedor criarFornecedor(Fornecedor fornecedor) {
+    @Autowired
+    private EmpresaRepository empresaRepository;
+
+    public Fornecedor criarFornecedor(Fornecedor fornecedor,  Long empresaId) {
        if (fornecedorRepository.existsByEmail(fornecedor.getEmail())) {
             throw new RegraNegocioException("Email já cadastrado!");
         }
-        if (!DocumentoUtils.isCnpjOuCpfValido(fornecedor.getCpfCnpj())) {
-            throw new RegraNegocioException("CPF/CNPJ inválido!");
+        String documento = fornecedor.getCpfCnpj().replaceAll("[^0-9]", ""); // Remove caracteres não numéricos
+        if (documento.length() < 11 || documento.length() > 14) {
+            throw new RegraNegocioException("O documento deve ter entre 11 (CPF) e 14 (CNPJ) dígitos!");
         }
-
         if (fornecedorRepository.existsByCpfCnpj(fornecedor.getCpfCnpj())) {
             throw new RegraNegocioException("CPF/CNPJ já cadastrado!");
         }
         // Se for pessoa física, verificar idade se a empresa for do Paraná
-        // Validação de menor de idade no Paraná
-//        if (fornecedor.getDataNascimento() != null && isMenorDeIdade(fornecedor)) {
-//            throw new RegraNegocioException("Menores de idade não podem ser fornecedores no PR!");
-//        }
-        return fornecedorRepository.save(fornecedor);
+        if (fornecedor.getCpfCnpj().length() == 11 && fornecedor.getDataNascimento() != null) {
+            int idade = Period.between(fornecedor.getDataNascimento(), LocalDate.now()).getYears();
+            if (idade < 18) {
+                throw new RuntimeException("Fornecedor menor de idade não permitido no Paraná.");
+            }
+        }
+
+
+        Empresa empresa = empresaRepository.findById(empresaId)
+                .orElseThrow(() -> new RuntimeException("Empresa não encontrada"));
+
+        fornecedor = fornecedorRepository.save(fornecedor);
+empresa.getFornecedor().add(fornecedor);
+empresaRepository.save(empresa);
+return fornecedor;
+
     }
 //    private boolean isMenorDeIdade(Fornecedor fornecedor) {
 //        LocalDate hoje = LocalDate.now();

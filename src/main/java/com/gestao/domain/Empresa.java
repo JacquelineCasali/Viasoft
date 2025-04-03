@@ -1,5 +1,6 @@
 package com.gestao.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -7,6 +8,7 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.validator.constraints.Length;
 
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -34,22 +36,24 @@ public class Empresa {
 
 
 
-//        @ManyToMany>
-//    @JoinTable(
-//            name = "empresa_fornecedor",
-//            joinColumns = @JoinColumn(name = "empresa_id"),
-//            inverseJoinColumns = @JoinColumn(name = "fornecedor_id")
-//    )
-//    Set<Fornecedor>  fornecedors;
-//    private Set<Fornecedor> fornecedores = new HashSet<>();
-
-
-    @ManyToMany
-    @JoinTable(
+@ManyToMany
+      @JoinTable(
             name = "empresa_fornecedor",
             joinColumns = @JoinColumn(name = "empresa_id"),
             inverseJoinColumns = @JoinColumn(name = "fornecedor_id")
     )
-    private Set<Fornecedor> fornecedores ;
+
+//@JsonIgnoreProperties("empresa")
+//    private List<Fornecedor> fornecedor;
+
+
+
+
+    @JsonIgnoreProperties("empresa")
+//private Set<Fornecedor> fornecedor = new HashSet<>();
+   private List<Fornecedor> fornecedor;
+//    public void addFornecedor(final Fornecedor fornecedores) {
+//        this.fornecedor.add(fornecedores);
+//    }
 
 }

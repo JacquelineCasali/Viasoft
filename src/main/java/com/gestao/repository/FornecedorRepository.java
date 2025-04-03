@@ -4,7 +4,8 @@ import com.gestao.domain.Fornecedor;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Optional;
+import java.util.List;
+
 
 
 public interface FornecedorRepository extends JpaRepository<Fornecedor,Long> {
@@ -14,4 +15,13 @@ public interface FornecedorRepository extends JpaRepository<Fornecedor,Long> {
 
 
     boolean existsByEmail(String email);
+
+
+
+//    @Override
+//    List<Fornecedor> findAllById(Iterable<Long> longs);
+
+
+
+//    List<Fornecedor> findAllById(List<Fornecedor> fornecedorIds);
 }

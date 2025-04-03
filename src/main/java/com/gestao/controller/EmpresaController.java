@@ -1,6 +1,13 @@
 package com.gestao.controller;
 
+
+import com.gestao.domain.CreateFornecedorRequest;
 import com.gestao.domain.Empresa;
+import com.gestao.domain.Fornecedor;
+import com.gestao.dto.EmpresaDTO;
+import com.gestao.infra.exceptions.RegraNegocioException;
+import com.gestao.repository.EmpresaRepository;
+import com.gestao.repository.FornecedorRepository;
 import com.gestao.service.EmpresaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,28 +26,39 @@ public class EmpresaController {
 
     @Autowired
     private EmpresaService empresaService;
+    @Autowired
+    EmpresaRepository empresaRepository;
+
+
 
     @PostMapping
-    @Operation(summary = "Cadastro de usuário", description = "Essa função é responsável por cadastrar um usuário")
+    public ResponseEntity<Empresa> criar(@RequestBody EmpresaDTO dto) {
 
-
-    public ResponseEntity <Empresa>criarEmpresa ( @RequestBody Empresa empresa){
-        this.empresaService.criarEmpresa(empresa);
+     Empresa empresa=   this.empresaService.salvar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(empresa);
+
     }
+
+
     @GetMapping
     public ResponseEntity<List<Empresa>>getAllEmpresa () {
         List<Empresa> empresas= this.empresaService.getAllEmpresa();
         return new ResponseEntity<>(empresas,HttpStatus.OK);
     }
+
+
     @GetMapping("/{id}")
     public ResponseEntity<Empresa> buscarEmpresa(@PathVariable Long id) {
         return ResponseEntity.ok(empresaService.buscarPorId(id));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Empresa> atualizarEmpresa(@PathVariable Long id, @RequestBody Empresa empresa) {
-        return ResponseEntity.ok(empresaService.atualizarEmpresa(id, empresa));
+    public ResponseEntity<Empresa> atualizarEmpresa(@PathVariable Long id, @RequestBody EmpresaDTO dto) {
+
+        Empresa empresaAtualizado=   this.empresaService.atualizarEmpresa(id,dto);
+        return ResponseEntity.ok(empresaAtualizado);
+
+
     }
 
     @DeleteMapping("/{id}")
@@ -48,4 +66,8 @@ public class EmpresaController {
         empresaService.deletarEmpresa(id);
         return ResponseEntity.noContent().build();
     }
+
+
+
+
 }

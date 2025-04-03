@@ -1,6 +1,7 @@
 package com.gestao.controller;
 
 
+import com.gestao.domain.CreateFornecedorRequest;
 import com.gestao.domain.Fornecedor;
 import com.gestao.service.FornecedorService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,11 +26,10 @@ public class FornecedorController {
     @Autowired
     private FornecedorService fornecedorService;
 
-    @PostMapping
+    @PostMapping("/{empresaId}")
     @Operation(summary = "Cadastro de Fornecedores", description = "Essa função é responsável por cadastrar um fornecedor")
-    public ResponseEntity <Fornecedor>criarFornecedor (  @RequestBody Fornecedor fornecedor){
-        this.fornecedorService.criarFornecedor(fornecedor);
-        return ResponseEntity.status(HttpStatus.CREATED).body(fornecedor);
+    public ResponseEntity <Fornecedor>criarFornecedor (  @RequestBody Fornecedor fornecedor,@PathVariable Long empresaId){
+        return ResponseEntity.ok(fornecedorService.criarFornecedor(fornecedor, empresaId));
     }
     @GetMapping
     public ResponseEntity<List<Fornecedor>> getAllFornecedor() {
