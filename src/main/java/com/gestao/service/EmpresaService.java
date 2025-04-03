@@ -2,13 +2,15 @@ package com.gestao.service;
 
 
 import com.gestao.domain.Empresa;
-import com.gestao.domain.Fornecedor;
 import com.gestao.infra.exceptions.RecursoNaoEncontradoException;
 import com.gestao.infra.exceptions.RegraNegocioException;
 import com.gestao.repository.EmpresaRepository;
+
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 @Service
@@ -19,21 +21,20 @@ public class EmpresaService {
   private EmpresaRepository empresaRepository;
 
 
-    public Empresa criarEmpresa(Empresa empresa){
-
-      if (empresaRepository.existsByCnpj(empresa.getCnpj())) {
-        throw new RegraNegocioException("CNPJ já cadastrado!");
-      }
-      return empresaRepository.save(empresa);
+  public Empresa criarEmpresa(Empresa empresa){
+    String cnpj = empresa.getCnpj().replaceAll("[^0-9]", ""); // Remove caracteres não numéricos
+    if (cnpj.length() < 14) {
+      throw new RegraNegocioException("CNPJ deve ter 14 dígitos!");
     }
+    if (empresaRepository.existsByCnpj(empresa.getCnpj())) {
+      throw new RegraNegocioException("CNPJ já cadastrado!");
+    }
+    return empresaRepository.save(empresa);
+  }
   // Listar todas
   public List<Empresa> getAllEmpresa() {
     return empresaRepository.findAll();
   }
-
-
-
-
   // Buscar por ID
   public Empresa buscarPorId(Long id) {
     return empresaRepository.findById(id)
@@ -42,7 +43,8 @@ public class EmpresaService {
   // Atualizar Empresa
   public Empresa atualizarEmpresa(Long id, Empresa novaEmpresa) {
     Empresa empresa = buscarPorId(id);
-    empresa.setNomefantasia(novaEmpresa.getNomefantasia());
+    empresa.setCnpj(novaEmpresa.getCnpj());
+    empresa.setNomeFantasia(novaEmpresa.getNomeFantasia());
     empresa.setCep(novaEmpresa.getCep());
     return empresaRepository.save(empresa);
   }

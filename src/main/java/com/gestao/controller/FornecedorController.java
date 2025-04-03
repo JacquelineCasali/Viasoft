@@ -2,13 +2,16 @@ package com.gestao.controller;
 
 
 import com.gestao.domain.Fornecedor;
-
 import com.gestao.service.FornecedorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,9 +27,9 @@ public class FornecedorController {
 
     @PostMapping
     @Operation(summary = "Cadastro de Fornecedores", description = "Essa função é responsável por cadastrar um fornecedor")
-    public ResponseEntity <Fornecedor>criarFornecedor ( @RequestBody Fornecedor fornecedor){
-       this.fornecedorService.criarFornecedor(fornecedor);
-           return ResponseEntity.status(HttpStatus.CREATED).body(fornecedor);
+    public ResponseEntity <Fornecedor>criarFornecedor (  @RequestBody Fornecedor fornecedor){
+        this.fornecedorService.criarFornecedor(fornecedor);
+        return ResponseEntity.status(HttpStatus.CREATED).body(fornecedor);
     }
     @GetMapping
     public ResponseEntity<List<Fornecedor>> getAllFornecedor() {
@@ -49,6 +52,4 @@ public class FornecedorController {
         fornecedorService.deletarFornecedor(id);
         return ResponseEntity.noContent().build();
     }
-    }
-
-
+}

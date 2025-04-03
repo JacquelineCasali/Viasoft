@@ -1,7 +1,6 @@
 package com.gestao.controller;
 
 import com.gestao.domain.Empresa;
-import com.gestao.domain.Fornecedor;
 import com.gestao.service.EmpresaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,8 +25,8 @@ public class EmpresaController {
 
 
     public ResponseEntity <Empresa>criarEmpresa ( @RequestBody Empresa empresa){
-       this.empresaService.criarEmpresa(empresa);
-           return ResponseEntity.status(HttpStatus.CREATED).body(empresa);
+        this.empresaService.criarEmpresa(empresa);
+        return ResponseEntity.status(HttpStatus.CREATED).body(empresa);
     }
     @GetMapping
     public ResponseEntity<List<Empresa>>getAllEmpresa () {
@@ -49,6 +48,4 @@ public class EmpresaController {
         empresaService.deletarEmpresa(id);
         return ResponseEntity.noContent().build();
     }
-    }
-
-
+}
