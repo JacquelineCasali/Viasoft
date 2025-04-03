@@ -1,27 +1,23 @@
 package com.gestao.service;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import java.util.Map;
 
 @Service
 public class CepService {
-    private static final String CEP_API_URL = "http://cep.la/";
+    private final RestTemplate restTemplate = new RestTemplate();
+    private final String CEP_API_URL = "https://viacep.com.br/ws/{cep}/json/";
 
-    public Map<String, String> buscarCep(String cep) {
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Accept", "application/json");
+    public Map<String, Object> buscarCep(String cep) {
+        ResponseEntity<Map> response = restTemplate.getForEntity(CEP_API_URL, Map.class, cep);
 
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        ResponseEntity<Map> response = restTemplate.exchange(
-                CEP_API_URL + cep, HttpMethod.GET, entity, Map.class
-        );
+        // Verifica se a resposta contém erro (ViaCEP retorna "erro": true se não encontrar)
+        if (response.getBody() == null || response.getBody().containsKey("erro")) {
+            throw new RuntimeException("CEP não encontrado ou inválido.");
+        }
 
         return response.getBody();
     }

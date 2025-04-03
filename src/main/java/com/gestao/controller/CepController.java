@@ -1,7 +1,7 @@
 package com.gestao.controller;
 
 import com.gestao.service.CepService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,16 +12,14 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/cep")
+@RequiredArgsConstructor
 public class CepController {
-   @Autowired
+
     private final CepService cepService;
 
-    public CepController(CepService cepService) {
-        this.cepService = cepService;
-    }
-
     @GetMapping("/{cep}")
-    public ResponseEntity<Map<String, String>> validarCep(@PathVariable String cep) {
-        return ResponseEntity.ok(cepService.buscarCep(cep));
+    public ResponseEntity<Map<String, Object>> buscarCep(@PathVariable String cep) {
+        Map<String, Object> dadosCep = cepService.buscarCep(cep);
+        return ResponseEntity.ok(dadosCep);
     }
 }
