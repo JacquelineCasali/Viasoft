@@ -13,8 +13,8 @@ public class SpringdocConfigurations {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 //@OpenAPIDefinition(
-                .info(new Info().title("PicPay Simplificado")
-                        .description("Api responsável por cadastro e transferência")
+                .info(new Info().title("Sistema de Gestão")
+                        .description("Api responsável fazer CRUD e validações")
                         .version("1")
                 )
 

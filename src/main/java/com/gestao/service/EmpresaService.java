@@ -35,7 +35,7 @@ private FornecedorRepository fornecedorRepository;
 
   public Empresa salvar(EmpresaDTO dto ) {
  List<Fornecedor> fornecedores = fornecedorRepository.findAllById(dto.getFornecedorIds());
-//    // Valida se todos os fornecedores foram encontrados
+    // Valida se todos os fornecedores foram encontrados
       if (fornecedores.size() != dto.getFornecedorIds().size()) {
           List<Long> idsNaoEncontrados = dto.getFornecedorIds().stream()
                   .filter(id -> fornecedores.stream().noneMatch(f -> f.getId().equals(id)))
@@ -73,14 +73,6 @@ public List<Empresa> getAllEmpresa() {
       // Buscar fornecedores pelo ID
       List<Fornecedor> fornecedores = fornecedorRepository.findAllById(dto.getFornecedorIds());
 
-      // Verificar se todos os fornecedores existem
-      if (fornecedores.size() != dto.getFornecedorIds().size()) {
-          List<Long> idsNaoEncontrados = dto.getFornecedorIds().stream()
-                  .filter(id -> fornecedores.stream().noneMatch(f -> f.getId().equals(id)))
-                  .collect(Collectors.toList());
-
-          throw new FornecedorNaoEncontradoException("Erro: Os seguintes fornecedores não foram encontrados: " + idsNaoEncontrados);
-      }
 
       // Atualizar os dados da empresa
     empresa.setCnpj(dto.getCnpj());

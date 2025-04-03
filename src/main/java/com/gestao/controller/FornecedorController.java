@@ -1,14 +1,14 @@
 package com.gestao.controller;
 
 
-import com.gestao.domain.CreateFornecedorRequest;
-import com.gestao.domain.Empresa;
+
+
 import com.gestao.domain.Fornecedor;
 import com.gestao.dto.FornecedorDTO;
 import com.gestao.service.FornecedorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

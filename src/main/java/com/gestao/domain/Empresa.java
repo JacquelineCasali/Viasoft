@@ -38,17 +38,12 @@ public class Empresa {
             inverseJoinColumns = @JoinColumn(name = "fornecedor_id")
     )
 
-//@JsonIgnoreProperties("empresa")
-//    private List<Fornecedor> fornecedor;
+@JsonIgnoreProperties("empresa")
+    private List<Fornecedor> fornecedor;
 
 
 
 
-    @JsonIgnoreProperties("empresa")
-//private Set<Fornecedor> fornecedor = new HashSet<>();
-   private List<Fornecedor> fornecedor;
-//    public void addFornecedor(final Fornecedor fornecedores) {
-//        this.fornecedor.add(fornecedores);
-//    }
+
 
 }

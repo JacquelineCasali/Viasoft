@@ -38,8 +38,9 @@ public class Fornecedor {
 
     @Column(nullable = false)
     private String cep;
-
+    private boolean pessoaFisica; // Define se é PF ou PJ
     private String rg;
+
     private LocalDate dataNascimento;
 
 @ManyToMany(mappedBy="fornecedor")

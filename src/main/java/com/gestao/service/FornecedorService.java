@@ -9,11 +9,14 @@ import com.gestao.repository.EmpresaRepository;
 import com.gestao.repository.FornecedorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class FornecedorService {
@@ -26,9 +29,7 @@ public class FornecedorService {
 
     public Fornecedor criarFornecedor(FornecedorDTO dto) {
         // Verifica se a empresa existe
-        List<Empresa> empresas = empresaRepository.findAllById(dto.getEmpresaId());
-
-       if (fornecedorRepository.existsByEmail(dto.getEmail())) {
+        if (fornecedorRepository.existsByEmail(dto.getEmail())) {
             throw new RegraNegocioException("Email já cadastrado!");
         }
         String documento = dto.getCpfCnpj().replaceAll("[^0-9]", ""); // Remove caracteres não numéricos
@@ -38,25 +39,48 @@ public class FornecedorService {
         if (fornecedorRepository.existsByCpfCnpj(dto.getCpfCnpj())) {
             throw new RegraNegocioException("CPF/CNPJ já cadastrado!");
         }
-        // Se for pessoa física, verificar idade se a empresa for do Paraná
-        if (dto.getCpfCnpj().length() == 11 && dto.getDataNascimento() != null) {
+
+        // Se for Pessoa Física, RG e Data de Nascimento são obrigatórios
+        List<Empresa> empresas = null;
+        if (dto.isPessoaFisica()) {
+            if (dto.getRg() == null || dto.getDataNascimento() == null) {
+                throw new RegraNegocioException("RG e Data de Nascimento são obrigatórios para pessoas físicas.");
+            }
+
+
             int idade = Period.between(dto.getDataNascimento(), LocalDate.now()).getYears();
-            if (idade < 18) {
-                throw new RuntimeException("Fornecedor menor de idade não permitido no Paraná.");
+            // Verificar se a empresa está no Paraná
+
+            // Verificar se a empresa está no Paraná (CEPs iniciando com 80-84)
+            empresas = empresaRepository.findAllByCep(dto.getCep());
+            if (empresas != null) {
+                for (Empresa empresa : empresas) {
+                    if (empresa.getCep().matches("8[0-4]\\d{3}-\\d{3}")) {
+                        if (idade < 18) {
+                            throw new RecursoNaoEncontradoException("Fornecedores menores de idade não podem ser cadastrados em empresas do Paraná.");
+                        }
+                    }
+                }
             }
         }
 
 
         Fornecedor fornecedor = new Fornecedor();
-fornecedor.setNome(dto.getNome());
-fornecedor.setCpfCnpj(dto.getCpfCnpj());
-fornecedor.setEmail(dto.getEmail());
-fornecedor.setRg(dto.getRg());
-fornecedor.setDataNascimento(dto.getDataNascimento());
-fornecedor.setCep(dto.getCep());
+        fornecedor.setNome(dto.getNome());
+        fornecedor.setCpfCnpj(dto.getCpfCnpj());
+        fornecedor.setEmail(dto.getEmail());
+        fornecedor.setRg(dto.getRg());
+        fornecedor.setDataNascimento(dto.getDataNascimento());
+        fornecedor.setCep(dto.getCep());
         fornecedor.setEmpresa(empresas);
         return fornecedorRepository.save(fornecedor);
     }
+
+
+
+
+
+
 
     // Listar todos
     public List<Fornecedor> getAllFornecedor() {
