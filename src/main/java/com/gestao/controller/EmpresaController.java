@@ -1,15 +1,9 @@
 package com.gestao.controller;
 
-
-import com.gestao.domain.CreateFornecedorRequest;
 import com.gestao.domain.Empresa;
-import com.gestao.domain.Fornecedor;
 import com.gestao.dto.EmpresaDTO;
-import com.gestao.infra.exceptions.RegraNegocioException;
 import com.gestao.repository.EmpresaRepository;
-import com.gestao.repository.FornecedorRepository;
 import com.gestao.service.EmpresaService;
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -39,7 +33,6 @@ public class EmpresaController {
 
     }
 
-
     @GetMapping
     public ResponseEntity<List<Empresa>>getAllEmpresa () {
         List<Empresa> empresas= this.empresaService.getAllEmpresa();
@@ -60,14 +53,10 @@ public class EmpresaController {
 
 
     }
-
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarEmpresa(@PathVariable Long id) {
         empresaService.deletarEmpresa(id);
         return ResponseEntity.noContent().build();
     }
-
-
-
 
 }
