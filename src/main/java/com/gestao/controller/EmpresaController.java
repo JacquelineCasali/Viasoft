@@ -1,5 +1,7 @@
 package com.gestao.controller;
 
+
+
 import com.gestao.domain.Empresa;
 import com.gestao.dto.EmpresaDTO;
 import com.gestao.repository.EmpresaRepository;
@@ -8,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,12 +29,13 @@ public class EmpresaController {
 
 
     @PostMapping
+
     public ResponseEntity<Empresa> criar(@RequestBody EmpresaDTO dto) {
-
-     Empresa empresa=   this.empresaService.salvar(dto);
+        Empresa empresa=   this.empresaService.salvar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(empresa);
-
     }
+
+
 
     @GetMapping
     public ResponseEntity<List<Empresa>>getAllEmpresa () {
@@ -53,10 +57,14 @@ public class EmpresaController {
 
 
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarEmpresa(@PathVariable Long id) {
         empresaService.deletarEmpresa(id);
         return ResponseEntity.noContent().build();
     }
+
+
+
 
 }

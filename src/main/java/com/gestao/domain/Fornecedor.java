@@ -10,23 +10,23 @@ import org.hibernate.validator.constraints.Length;
 import java.time.LocalDate;
 
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 
 @Entity
-@Table(name = "fornecedor")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(of="id")
+
 public class Fornecedor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private  Long id;
-    @Column(unique = true, nullable = false)
-    @Length(min=11 , message = "O documento deve conter 11 caracteres")
+
+    @Column(nullable = false, unique = true)
 
     private String cpfCnpj;
 
@@ -35,16 +35,15 @@ public class Fornecedor {
     @Column(unique = true, nullable = false)
     @Email
     private String email;
-
-    @Column(nullable = false)
+  private boolean pessoaFisica; // Define se é PF ou PJ
+    @Column(nullable = false, length = 9)
     private String cep;
-    private boolean pessoaFisica; // Define se é PF ou PJ
     private String rg;
 
     private LocalDate dataNascimento;
 
-@ManyToMany(mappedBy="fornecedor")
-@JsonIgnoreProperties("fornecedor")
-    private List<Empresa> empresa;
+    @ManyToMany(mappedBy="fornecedores")
+    @JsonIgnoreProperties("fornecedores")
+    private List<Empresa> empresas=new ArrayList<>();
 
 }

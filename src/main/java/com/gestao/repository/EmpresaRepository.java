@@ -9,8 +9,6 @@ import java.util.Set;
 
 public interface EmpresaRepository extends JpaRepository<Empresa,Long>{
 
+
   boolean existsByCnpj(String cnpj);
-
-
-  List<Empresa> findAllByCep(String cep);
 }

@@ -30,11 +30,11 @@ public class FornecedorController {
 
     @PostMapping
     @Operation(summary = "Cadastro de Fornecedores", description = "Essa função é responsável por cadastrar um fornecedor")
-    public ResponseEntity <Fornecedor>criarFornecedor (@RequestBody FornecedorDTO dto){
-        Fornecedor fornecedorCriado = fornecedorService.criarFornecedor(dto);
+    public ResponseEntity<Fornecedor> criarFornecedor(@RequestBody FornecedorDTO dto) {
+        Fornecedor fornecedorCriado = fornecedorService.salvar(dto);
         return ResponseEntity.status(201).body(fornecedorCriado);
-
     }
+
     @GetMapping
     public ResponseEntity<List<Fornecedor>> getAllFornecedor() {
         List<Fornecedor> fornecedores= this.fornecedorService.getAllFornecedor();

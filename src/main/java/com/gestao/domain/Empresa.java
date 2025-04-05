@@ -1,34 +1,33 @@
 package com.gestao.domain;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
-
+import java.util.*;
 
 
 @Entity
-@Table(name = "empresa")
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Empresa {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private  Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false,length = 14)
 
     private String cnpj;
 
     @Column(nullable = false)
    private String nomeFantasia;
 
-    @Column(nullable = false)
+    @Column(nullable = false,length = 9)
     private String cep;
-
+    private String estado;
 
 
 @ManyToMany
@@ -38,12 +37,8 @@ public class Empresa {
             inverseJoinColumns = @JoinColumn(name = "fornecedor_id")
     )
 
-@JsonIgnoreProperties("empresa")
-    private List<Fornecedor> fornecedor;
-
-
-
-
+@JsonIgnoreProperties("empresas")
+private List<Fornecedor> fornecedores=new ArrayList<>();
 
 
 }
