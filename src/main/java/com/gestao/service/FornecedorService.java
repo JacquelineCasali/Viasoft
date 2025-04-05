@@ -3,22 +3,18 @@ package com.gestao.service;
 import com.gestao.domain.Empresa;
 import com.gestao.domain.Fornecedor;
 import com.gestao.dto.FornecedorDTO;
-import com.gestao.infra.exceptions.FornecedorNaoEncontradoException;
 import com.gestao.infra.exceptions.RecursoNaoEncontradoException;
 import com.gestao.infra.exceptions.RegraNegocioException;
 import com.gestao.repository.EmpresaRepository;
 import com.gestao.repository.FornecedorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-
-
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.*;
 
-import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -96,15 +92,14 @@ public class FornecedorService {
 
     }
 
-    // Listar todos
-    public List<Fornecedor> getAllFornecedor() {
-        return fornecedorRepository.findAll();
+    // Listar todos e filtrar pelo nome /cnpj
+    public List<Fornecedor> filtrar(String nome, String cpfCnpj) {
+        return fornecedorRepository.filtrar(nome, cpfCnpj);
     }
     public Fornecedor buscarPorId(Long id) {
         return fornecedorRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Fornecedor não encontrado!"));
     }
-
 
     public Fornecedor atualizarFornecedor(Long id, FornecedorDTO dto) {
         Fornecedor fornecedor = fornecedorRepository.findById(id)
@@ -173,7 +168,15 @@ public class FornecedorService {
 
     // Deletar Fornecedor
     public void deletarFornecedor(Long id) {
-        Fornecedor fornecedor = buscarPorId(id);
+        Fornecedor fornecedor = fornecedorRepository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Fornecedor não encontrado com ID: " + id));
+
+        // Desvincula o fornecedor das empresas antes de deletar
+        for (Empresa empresa : fornecedor.getEmpresas()) {
+            empresa.getFornecedores().remove(fornecedor);
+        }
+        empresaRepository.saveAll(fornecedor.getEmpresas());
+
         fornecedorRepository.delete(fornecedor);
     }
 

@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,14 +35,20 @@ public class FornecedorController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Fornecedor>> getAllFornecedor() {
-        List<Fornecedor> fornecedores= this.fornecedorService.getAllFornecedor();
-        return new ResponseEntity<>(fornecedores,HttpStatus.OK);
+    public ResponseEntity<List<Fornecedor>> listarComFiltro(
+            @RequestParam(required = false) String nome,
+            @RequestParam(required = false) String cpfCnpj) {
+
+        List<Fornecedor> fornecedores = fornecedorService.filtrar(nome, cpfCnpj);
+        return ResponseEntity.ok(fornecedores);
     }
     @GetMapping("/{id}")
     public ResponseEntity<Fornecedor> buscarFornecedor(@PathVariable Long id) {
         return ResponseEntity.ok(fornecedorService.buscarPorId(id));
     }
+
+
+
 
     @PutMapping("/{id}")
     public ResponseEntity<Fornecedor> atualizarFornecedor(@PathVariable Long id, @RequestBody FornecedorDTO dto) {
@@ -53,8 +58,8 @@ public class FornecedorController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarFornecedor(@PathVariable Long id) {
+    public ResponseEntity<String> deletarFornecedor(@PathVariable Long id) {
         fornecedorService.deletarFornecedor(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Fornecedor deletado com sucesso.");
     }
 }

@@ -3,6 +3,7 @@ package com.gestao.controller;
 
 
 import com.gestao.domain.Empresa;
+import com.gestao.domain.Fornecedor;
 import com.gestao.dto.EmpresaDTO;
 import com.gestao.repository.EmpresaRepository;
 import com.gestao.service.EmpresaService;
@@ -37,12 +38,14 @@ public class EmpresaController {
 
 
 
-    @GetMapping
-    public ResponseEntity<List<Empresa>>getAllEmpresa () {
-        List<Empresa> empresas= this.empresaService.getAllEmpresa();
-        return new ResponseEntity<>(empresas,HttpStatus.OK);
-    }
+     @GetMapping
+    public ResponseEntity<List<Empresa>> listarComFiltro(
+            @RequestParam(required = false) String nomeFantasia,
+            @RequestParam(required = false) String cnpj) {
 
+        List<Empresa> empresas = empresaService.filtrar(nomeFantasia, cnpj);
+        return ResponseEntity.ok(empresas);
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<Empresa> buscarEmpresa(@PathVariable Long id) {

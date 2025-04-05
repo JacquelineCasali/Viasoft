@@ -13,6 +13,7 @@ import com.gestao.repository.EmpresaRepository;
 
 
 import com.gestao.repository.FornecedorRepository;
+import com.gestao.utils.CepUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,10 +45,14 @@ private FornecedorRepository fornecedorRepository;
         if (cnpj.length() < 14) {
             throw new RegraNegocioException("CNPJ deve ter 14 dígitos!");
         }
-        String cep = dto.getCep().replaceAll("[^0-9]", ""); // Remove caracteres não numéricos
-        if (cep.length() < 8) {
-            throw new RegraNegocioException("Cep deve ter 8 dígitos!");
-        }
+//        String cep = dto.getCep().replaceAll("[^0-9]", ""); // Remove caracteres não numéricos
+//        if (cep.length() < 8) {
+//            throw new RegraNegocioException("Cep deve ter 8 dígitos!");
+//        }
+
+
+
+
         if (empresaRepository.existsByCnpj(dto.getCnpj())) {
             throw new RegraNegocioException("CNPJ já cadastrado.");
         }
@@ -55,6 +60,13 @@ private FornecedorRepository fornecedorRepository;
         empresa.setNomeFantasia(dto.getNomeFantasia());
         empresa.setCnpj(dto.getCnpj());
         empresa.setCep(dto.getCep());
+        // Buscar o estado baseado no CEP
+        if (empresa.getCep() != null && !empresa.getCep().isEmpty()) {
+            String estado = CepUtils.buscarUfPorCep(empresa.getCep());
+            empresa.setEstado(estado);
+        }
+
+
         empresa.getFornecedores().addAll(fornecedores);
         return empresaRepository.save(empresa);
     }
@@ -62,8 +74,8 @@ private FornecedorRepository fornecedorRepository;
 
 
   // Listar todas
-  public List<Empresa> getAllEmpresa() {
-      return empresaRepository.findAll();
+  public List<Empresa> filtrar(String nomeFantasia, String cnpj) {
+      return empresaRepository.filtrar(nomeFantasia, cnpj);
 
   }
   // Buscar por ID

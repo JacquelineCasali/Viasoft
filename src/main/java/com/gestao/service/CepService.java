@@ -1,5 +1,6 @@
 package com.gestao.service;
 
+import com.gestao.infra.exceptions.RegraNegocioException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -16,7 +17,7 @@ public class CepService {
 
         // Verifica se a resposta contém erro (ViaCEP retorna "erro": true se não encontrar)
         if (response.getBody() == null || response.getBody().containsKey("erro")) {
-            throw new RuntimeException("CEP não encontrado ou inválido.");
+            throw new RegraNegocioException("CEP não encontrado ou inválido.");
         }
 
         return response.getBody();
