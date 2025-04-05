@@ -21,6 +21,7 @@ public class FornecedorDTO {
     private String nome;
     private String email;
     private String cep;
+//    private boolean pessoaFisica;
     private String rg;
     private LocalDate dataNascimento;
 private List<Long> empresaIds;

@@ -35,7 +35,6 @@ public class Fornecedor {
     @Column(unique = true, nullable = false)
     @Email
     private String email;
-  private boolean pessoaFisica; // Define se é PF ou PJ
     @Column(nullable = false, length = 9)
     private String cep;
     private String rg;

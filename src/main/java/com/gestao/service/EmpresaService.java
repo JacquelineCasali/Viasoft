@@ -14,9 +14,11 @@ import com.gestao.repository.EmpresaRepository;
 
 import com.gestao.repository.FornecedorRepository;
 import com.gestao.utils.CepUtils;
+import com.gestao.utils.FornecedorValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,7 +31,7 @@ public class EmpresaService {
 @Autowired
 private FornecedorRepository fornecedorRepository;
 
-
+    @Transactional
     public Empresa salvar(EmpresaDTO dto ) {
         List<Fornecedor> fornecedores = fornecedorRepository.findAllById(dto.getFornecedorIds());
 
@@ -45,26 +47,26 @@ private FornecedorRepository fornecedorRepository;
         if (cnpj.length() < 14) {
             throw new RegraNegocioException("CNPJ deve ter 14 dígitos!");
         }
-//        String cep = dto.getCep().replaceAll("[^0-9]", ""); // Remove caracteres não numéricos
-//        if (cep.length() < 8) {
-//            throw new RegraNegocioException("Cep deve ter 8 dígitos!");
-//        }
-
-
-
-
+        String cep = dto.getCep().replaceAll("[^0-9]", ""); // Remove caracteres não numéricos
+        if (cep.length() < 8) {
+            throw new RegraNegocioException("Cep deve ter 8 dígitos!");
+        }
         if (empresaRepository.existsByCnpj(dto.getCnpj())) {
             throw new RegraNegocioException("CNPJ já cadastrado.");
+        }
+        // Buscar estado com base no CEP
+        String estado = CepUtils.buscarUfPorCep(cep);
+        if (estado == null || estado.isEmpty()) {
+            throw new RegraNegocioException("Não foi possível determinar o estado a partir do CEP informado.");
         }
         Empresa empresa= new Empresa();
         empresa.setNomeFantasia(dto.getNomeFantasia());
         empresa.setCnpj(dto.getCnpj());
-        empresa.setCep(dto.getCep());
-        // Buscar o estado baseado no CEP
-        if (empresa.getCep() != null && !empresa.getCep().isEmpty()) {
-            String estado = CepUtils.buscarUfPorCep(empresa.getCep());
-            empresa.setEstado(estado);
-        }
+        empresa.setCep(cep);
+        empresa.setEstado(estado);
+
+// Valida aqui também
+        FornecedorValidator.validarFornecedorMenorDeIdadeComEmpresaPR(empresa, fornecedores);
 
 
         empresa.getFornecedores().addAll(fornecedores);

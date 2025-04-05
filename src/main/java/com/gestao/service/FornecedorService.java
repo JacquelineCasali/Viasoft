@@ -7,13 +7,14 @@ import com.gestao.infra.exceptions.RecursoNaoEncontradoException;
 import com.gestao.infra.exceptions.RegraNegocioException;
 import com.gestao.repository.EmpresaRepository;
 import com.gestao.repository.FornecedorRepository;
+import com.gestao.utils.FornecedorValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.*;
-
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -25,7 +26,7 @@ public class FornecedorService {
 
     @Autowired
     private EmpresaRepository empresaRepository;
-
+    @Transactional
     public Fornecedor salvar(FornecedorDTO dto) {
 
         if (fornecedorRepository.existsByEmail(dto.getEmail())) {
@@ -38,11 +39,15 @@ public class FornecedorService {
         if (cep.length() < 8) {
             throw new RegraNegocioException("Cep deve ter 8 dígitos!");
         }
+        String cpfCnpj = dto.getCpfCnpj().replaceAll("[^0-9]", "");
+        if (cpfCnpj.length() != 11 && cpfCnpj.length() != 14) {
+            throw new RegraNegocioException("CPF ou CNPJ inválido.");
+        }
 
-        boolean isPessoaFisica = dto.getCpfCnpj().length() == 11;
-        // 🔒 Pessoa física deve ter RG e data de nascimento
-        if (isPessoaFisica) {
-            if (dto.getRg() == null || dto.getDataNascimento() == null) {
+        boolean isPessoaFisica = cpfCnpj.length() == 11;
+        //  Pessoa física deve ter RG e data de nascimento
+            if (isPessoaFisica) {
+            if (dto.getRg() == null || dto.getRg().isBlank() || dto.getDataNascimento() == null) {
                 throw new RegraNegocioException("RG e data de nascimento são obrigatórios para pessoa física.");
             }
         }
@@ -51,24 +56,20 @@ public class FornecedorService {
         // Agora vincula com empresas (se houver)
         if (dto.getEmpresaIds() != null && !dto.getEmpresaIds().isEmpty()) {
             empresas = empresaRepository.findAllById(dto.getEmpresaIds());
-            // 🔒 Validar se todas as empresas existem
+            // Validar se todas as empresas existem
             if (empresas.size() != dto.getEmpresaIds().size()) {
                 throw new RegraNegocioException("Uma ou mais empresas informadas não existem.");
             }
 
-            // 🔒 Regra para empresas do Paraná com fornecedor menor de idade
-            if (isPessoaFisica && dto.getDataNascimento() != null) {
-                boolean empresaDoParana = empresas.stream()
-                        .anyMatch(e -> "PR".equalsIgnoreCase(e.getEstado())); // campo 'estado' na Empresa
+           // Valida a regra do PR com menor de idade
+            Fornecedor fornecedorTemp = new Fornecedor();
+            fornecedorTemp.setCpfCnpj(dto.getCpfCnpj());
+            fornecedorTemp.setDataNascimento(dto.getDataNascimento());
 
-                if (empresaDoParana) {
-                    int idade = Period.between(dto.getDataNascimento(), LocalDate.now()).getYears();
-                    if (idade < 18) {
-                        throw new RegraNegocioException("Fornecedor menor de idade não pode ser vinculado a empresa do Paraná.");
-                    }
-                }
-            }
+            FornecedorValidator.validarFornecedorMenorDeIdadeComEmpresaPR(empresas, fornecedorTemp);
         }
+
+
 
         Fornecedor fornecedor = new Fornecedor();
         fornecedor.setNome(dto.getNome());
@@ -84,6 +85,7 @@ public class FornecedorService {
             fornecedor.setEmpresas(empresas);
             for (Empresa empresa : empresas) {
                 empresa.getFornecedores().add(fornecedor);
+                System.out.println("Empresa: " + empresa.getNomeFantasia() + " - Estado: " + empresa.getEstado());
             }
             empresaRepository.saveAll(empresas);
         }
