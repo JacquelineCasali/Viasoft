@@ -5,15 +5,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;
-import org.hibernate.validator.constraints.Length;
 
+import jakarta.validation.constraints.*;
 import java.time.LocalDate;
-
-
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+
 
 
 @Entity
@@ -27,22 +24,44 @@ public class Fornecedor {
     private  Long id;
 
     @Column(nullable = false, unique = true)
-
+    @NotBlank(message = "CPF/CNPJ é obrigatório")
     private String cpfCnpj;
 
-    @Column(nullable = false)
+    @NotBlank(message = "Nome  é obrigatório")
     private String nome;
-    @Column(unique = true, nullable = false)
-    @Email
+    @Column(unique = true)
+    @NotBlank(message = "Email é obrigatório")
+    @Email(message = "Email inválido")
     private String email;
-    @Column(nullable = false, length = 9)
+    @NotBlank(message = "CEP é obrigatório")
     private String cep;
+    private String estado;
+
     private String rg;
 
     private LocalDate dataNascimento;
 
+
+
     @ManyToMany(mappedBy="fornecedores")
     @JsonIgnoreProperties("fornecedores")
     private List<Empresa> empresas=new ArrayList<>();
+
+
+    @AssertTrue(message = "RG e data de nascimento são obrigatórios para pessoa física (CPF)")
+    public boolean isDadosPessoaFisicaValidos() {
+        if (cpfCnpj == null) return true;
+        String somenteNumeros = cpfCnpj.replaceAll("[^0-9]", "");
+        boolean isPessoaFisica = somenteNumeros.length() == 11;
+
+        if (!isPessoaFisica) return true;
+
+        boolean rgValido = rg != null && !rg.trim().isEmpty();
+        boolean dataNascimentoValida = dataNascimento != null;
+
+        return rgValido && dataNascimentoValida;
+    }
+
+
 
 }

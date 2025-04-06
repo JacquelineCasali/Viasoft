@@ -23,4 +23,6 @@ public interface FornecedorRepository extends JpaRepository<Fornecedor,Long> {
             "(:nome IS NULL OR LOWER(f.nome) LIKE LOWER(CONCAT('%', :nome, '%'))) AND " +
             "(:cpfCnpj IS NULL OR f.cpfCnpj LIKE %:cpfCnpj%)")
     List<Fornecedor> filtrar(@Param("nome") String nome, @Param("cpfCnpj") String cpfCnpj);
+
+
 }

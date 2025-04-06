@@ -8,6 +8,7 @@ import com.gestao.dto.EmpresaDTO;
 import com.gestao.repository.EmpresaRepository;
 import com.gestao.service.EmpresaService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,13 +32,10 @@ public class EmpresaController {
 
     @PostMapping
 
-    public ResponseEntity<Empresa> criar(@RequestBody EmpresaDTO dto) {
+    public ResponseEntity<Empresa> criar(@RequestBody @Valid EmpresaDTO dto) {
         Empresa empresa=   this.empresaService.salvar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(empresa);
     }
-
-
-
      @GetMapping
     public ResponseEntity<List<Empresa>> listarComFiltro(
             @RequestParam(required = false) String nomeFantasia,
@@ -53,20 +51,18 @@ public class EmpresaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Empresa> atualizarEmpresa(@PathVariable Long id, @RequestBody EmpresaDTO dto) {
+    public ResponseEntity<Empresa> atualizarEmpresa(@PathVariable Long id, @RequestBody @Valid EmpresaDTO dto) {
 
         Empresa empresaAtualizado=   this.empresaService.atualizarEmpresa(id,dto);
         return ResponseEntity.ok(empresaAtualizado);
 
-
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarEmpresa(@PathVariable Long id) {
+    public ResponseEntity<String> deletarEmpresa(@PathVariable Long id) {
         empresaService.deletarEmpresa(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Empresa deletado com sucesso.");
     }
-
 
 
 

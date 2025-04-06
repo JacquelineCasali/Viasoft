@@ -19,6 +19,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -101,12 +104,49 @@ private FornecedorRepository fornecedorRepository;
             throw new FornecedorNaoEncontradoException("Erro: Os seguintes fornecedores não foram encontrados: " + idsNaoEncontrados);
         }
 
+        // Validação do CNPJ
+        String cnpj = dto.getCnpj().replaceAll("[^0-9]", "");
+        if (cnpj.length() < 14) {
+            throw new RegraNegocioException("CNPJ deve ter 14 dígitos!");
+        }
+        if (!empresa.getCnpj().equals(dto.getCnpj()) && empresaRepository.existsByCnpj(dto.getCnpj())) {
+            throw new RegraNegocioException("CNPJ já cadastrado.");
+        }
+        // Validação e busca do CEP
+        String cep = dto.getCep().replaceAll("[^0-9]", "");
+        if (cep.length() < 8) {
+            throw new RegraNegocioException("CEP deve ter 8 dígitos!");
+        }
+
+        String estado = CepUtils.buscarUfPorCep(cep);
+        if (estado == null || estado.isEmpty()) {
+            throw new RegraNegocioException("Não foi possível determinar o estado a partir do CEP informado.");
+        }
+
+//  Se o novo estado for PR, verificar os fornecedores atuais
+        if ("PR".equalsIgnoreCase(estado)) {
+            for (Fornecedor fornecedor : empresa.getFornecedores()) {
+                if (fornecedor.getCpfCnpj() != null && fornecedor.getDataNascimento() != null) {
+                    String cpfCnpj = fornecedor.getCpfCnpj().replaceAll("[^0-9]", "");
+                    boolean isPessoaFisica = cpfCnpj.length() == 11;
+
+                    if (isPessoaFisica) {
+                        int idade = Period.between(fornecedor.getDataNascimento(), LocalDate.now()).getYears();
+                        if (idade < 18) {
+                            throw new RegraNegocioException("Empresa não pode ser do estado do Paraná com fornecedor menor de idade.");
+                        }
+                    }
+                }
+            }
+        }
         // Atualizar os dados da empresa
         empresa.setCnpj(dto.getCnpj());
         empresa.setNomeFantasia(dto.getNomeFantasia());
-        empresa.setCep(dto.getCep());
+        empresa.setCep(cep);
+        empresa.setEstado(estado);
+        empresa.getFornecedores().clear();
         empresa.getFornecedores().addAll(fornecedores);
-        empresa.setFornecedores(fornecedores);
+        FornecedorValidator.validarFornecedorMenorDeIdadeComEmpresaPR(empresa, fornecedores);
         return empresaRepository.save(empresa);
     }
 

@@ -9,6 +9,7 @@ import com.gestao.service.FornecedorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,7 +30,7 @@ public class FornecedorController {
 
     @PostMapping
     @Operation(summary = "Cadastro de Fornecedores", description = "Essa função é responsável por cadastrar um fornecedor")
-    public ResponseEntity<Fornecedor> criarFornecedor(@RequestBody FornecedorDTO dto) {
+    public ResponseEntity<Fornecedor> criarFornecedor(@RequestBody @Valid FornecedorDTO dto) {
         Fornecedor fornecedorCriado = fornecedorService.salvar(dto);
         return ResponseEntity.status(201).body(fornecedorCriado);
     }
@@ -51,7 +52,7 @@ public class FornecedorController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<Fornecedor> atualizarFornecedor(@PathVariable Long id, @RequestBody FornecedorDTO dto) {
+    public ResponseEntity<Fornecedor> atualizarFornecedor(@PathVariable Long id, @RequestBody @Valid FornecedorDTO dto) {
 
         Fornecedor fornecedorAtualizado =   this.fornecedorService.atualizarFornecedor(id,dto);
         return ResponseEntity.ok(fornecedorAtualizado);
