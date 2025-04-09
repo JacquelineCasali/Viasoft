@@ -28,9 +28,9 @@ public class Empresa {
     @Column(nullable = false,length = 9)
     private String cep;
     private String estado;
+    private String cidade;
 
-
-@ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
       @JoinTable(
             name = "empresa_fornecedor",
             joinColumns = @JoinColumn(name = "empresa_id"),
@@ -38,7 +38,7 @@ public class Empresa {
     )
 
 @JsonIgnoreProperties("empresas")
-private List<Fornecedor> fornecedores=new ArrayList<>();
+private Set<Fornecedor> fornecedores =new HashSet<>();
 
 
 }

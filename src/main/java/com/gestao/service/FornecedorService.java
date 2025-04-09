@@ -1,8 +1,10 @@
 package com.gestao.service;
 
+import com.gestao.domain.CepResponse;
 import com.gestao.domain.Empresa;
 import com.gestao.domain.Fornecedor;
 import com.gestao.dto.FornecedorDTO;
+import com.gestao.infra.exceptions.MultiplasRegrasException;
 import com.gestao.infra.exceptions.RecursoNaoEncontradoException;
 import com.gestao.infra.exceptions.RegraNegocioException;
 import com.gestao.repository.EmpresaRepository;
@@ -12,9 +14,9 @@ import com.gestao.utils.FornecedorValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.time.LocalDate;
-import java.time.Period;
 import java.util.*;
+
+
 import org.springframework.transaction.annotation.Transactional;
 
 
@@ -30,70 +32,61 @@ public class FornecedorService {
     @Transactional
     public Fornecedor salvar(FornecedorDTO dto) {
 
+        List<String> erros = new ArrayList<>();
         if (fornecedorRepository.existsByEmail(dto.getEmail())) {
-            throw new RegraNegocioException("Email já cadastrado!");
+            erros.add("Email já cadastrado!");
         }
         if (fornecedorRepository.existsByCpfCnpj(dto.getCpfCnpj())) {
-            throw new RegraNegocioException("CPF/CNPJ já cadastrado!");
+            erros.add("CPF/CNPJ já cadastrado!");
         }
         String cep = dto.getCep().replaceAll("[^0-9]", ""); // Remove caracteres não numéricos
         if (cep.length() < 8) {
-            throw new RegraNegocioException("Cep deve ter 8 dígitos!");
+            erros.add("CEP deve ter 8 dígitos!");
         }
         String cpfCnpj = dto.getCpfCnpj().replaceAll("[^0-9]", "");
         if (cpfCnpj.length() != 11 && cpfCnpj.length() != 14) {
-            throw new RegraNegocioException("CPF ou CNPJ inválido.");
+            erros.add("CPF ou CNPJ inválido.");
         }
-
+        if (!erros.isEmpty()) {
+            throw new MultiplasRegrasException(erros);
+        }
         // Buscar estado com base no CEP
-        String estado = CepUtils.buscarUfPorCep(cep);
-        if (estado == null || estado.isEmpty()) {
-            throw new RegraNegocioException("Não foi possível determinar o estado a partir do CEP informado.");
+        CepResponse cepInfo = CepUtils.buscarUfPorCep(cep);
+        String estado = cepInfo.getUf();
+        String cidade = cepInfo.getLocalidade();
+
+
+        List<Empresa> empresas = empresaRepository.findAllById(dto.getEmpresaIds());
+        if (empresas.size() != dto.getEmpresaIds().size()) {
+            throw new RegraNegocioException("Uma ou mais empresas informadas não existem.");
         }
+        Fornecedor fornecedor = new Fornecedor();
+        fornecedor.setNome(dto.getNome());
+        fornecedor.setCpfCnpj(dto.getCpfCnpj());
+        fornecedor.setEmail(dto.getEmail());
+        fornecedor.setRg(dto.getRg());
+        fornecedor.setDataNascimento(dto.getDataNascimento());
+        fornecedor.setCep(cep);
+        fornecedor.setEstado(estado);
+        fornecedor.setCidade(cidade);
+        FornecedorValidator.validarFornecedorMenorDeIdadeComEmpresaPR(empresas, fornecedor);
 
-
-        List<Empresa> empresas = new ArrayList<>();
-        // Agora vincula com empresas (se houver)
-        if (dto.getEmpresaIds() != null && !dto.getEmpresaIds().isEmpty()) {
-            empresas = empresaRepository.findAllById(dto.getEmpresaIds());
-            // 🔒 Validar se todas as empresas existem
-            if (empresas.size() != dto.getEmpresaIds().size()) {
-                throw new RegraNegocioException("Uma ou mais empresas informadas não existem.");
+        // Salva o fornecedor primeiro para gerar ID
+        fornecedor = fornecedorRepository.save(fornecedor);
+        // Faz a associação sem duplicar
+        for (Empresa empresa : empresas) {
+            if (!empresa.getFornecedores().contains(fornecedor)) {
+                empresa.getFornecedores().add(fornecedor);
             }
         }
-            // Regra para empresas do Paraná com fornecedor menor de idade
-            Fornecedor fornecedorTemp = new Fornecedor();
-            fornecedorTemp.setCpfCnpj(dto.getCpfCnpj());
-            fornecedorTemp.setDataNascimento(dto.getDataNascimento());
 
-            FornecedorValidator.validarFornecedorMenorDeIdadeComEmpresaPR(empresas, fornecedorTemp);
+        fornecedor.setEmpresas(new HashSet<>(empresas));
 
+        empresaRepository.saveAll(empresas); // Atualiza a outra ponta do relacionamento
 
+        return fornecedorRepository.save(fornecedor); // Salva com os vínculos atualizados
 
-            Fornecedor fornecedor = new Fornecedor();
-            fornecedor.setNome(dto.getNome());
-            fornecedor.setCpfCnpj(dto.getCpfCnpj());
-            fornecedor.setEmail(dto.getEmail());
-            fornecedor.setRg(dto.getRg());
-            fornecedor.setDataNascimento(dto.getDataNascimento());
-            fornecedor.setCep(cep);
-            fornecedor.setEstado(estado);
-
-
-            // Salva o fornecedor primeiro para gerar ID
-            fornecedor = fornecedorRepository.save(fornecedor);
-            // Vínculo com empresas (bidirecional)
-            if (!empresas.isEmpty()) {
-                fornecedor.setEmpresas(empresas);
-                for (Empresa empresa : empresas) {
-                    empresa.getFornecedores().add(fornecedor);
-                    System.out.println("Empresa: " + empresa.getNomeFantasia() + " - Estado: " + empresa.getEstado());
-                }
-                empresaRepository.saveAll(empresas);
-            }
-            return fornecedor;
-
-        }
+    }
 
     // Listar todos e filtrar pelo nome /cnpj
     public List<Fornecedor> filtrar(String nome, String cpfCnpj) {
@@ -104,76 +97,94 @@ public class FornecedorService {
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Fornecedor não encontrado!"));
     }
 
-    public Fornecedor atualizarFornecedor(Long id, FornecedorDTO dto) {
-        Fornecedor fornecedor = fornecedorRepository.findById(id)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Fornecedor não encontrado com ID: " + id));
-
+    public Fornecedor atualizarFornecedor(Long fornecedorId, FornecedorDTO dto) {
+        Fornecedor fornecedor = fornecedorRepository.findById(fornecedorId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Fornecedor não encontrado com ID: " + fornecedorId));
+        List<String> erros = new ArrayList<>();
         // Verifica se está tentando alterar o CPF/CNPJ para um que já existe
         if (!fornecedor.getCpfCnpj().equals(dto.getCpfCnpj()) &&
                 fornecedorRepository.existsByCpfCnpj(dto.getCpfCnpj())) {
-            throw new RegraNegocioException("CPF/CNPJ já cadastrado!");
+           erros.add("CPF/CNPJ já cadastrado!");
         }
         if (!fornecedor.getEmail().equals(dto.getEmail()) &&
                 fornecedorRepository.existsByEmail(dto.getEmail())) {
-            throw new RegraNegocioException("Email já cadastrado!");
+           erros.add("Email já cadastrado!");
         }
 
         String cep = dto.getCep().replaceAll("[^0-9]", "");
         if (cep.length() < 8) {
-            throw new RegraNegocioException("CEP deve ter 8 dígitos!");
+            erros.add("CEP deve ter 8 dígitos!");
         }
 
         String cpfCnpj = dto.getCpfCnpj().replaceAll("[^0-9]", "");
         if (cpfCnpj.length() != 11 && cpfCnpj.length() != 14) {
-            throw new RegraNegocioException("CPF ou CNPJ inválido.");
+           erros.add("CPF ou CNPJ inválido.");
+        }
+        if (!erros.isEmpty()) {
+            throw new MultiplasRegrasException(erros);
+        }
+// Buscar cidade e estado com base no CEP
+        CepResponse cepInfo = CepUtils.buscarUfPorCep(cep);
+        String estado = cepInfo.getUf();
+        String cidade = cepInfo.getLocalidade();
+
+        List<Empresa> novasEmpresas   = empresaRepository.findAllById(dto.getEmpresaIds());
+        if (novasEmpresas.size() != dto.getEmpresaIds().size()) {
+            throw new RegraNegocioException("Uma ou mais empresas informadas não existem.");
         }
 
 
-        // Buscar e validar empresas
-        List<Empresa> novasEmpresas = new ArrayList<>();
-        if (dto.getEmpresaIds() != null && !dto.getEmpresaIds().isEmpty()) {
-            novasEmpresas = empresaRepository.findAllById(dto.getEmpresaIds());
-
-            if (novasEmpresas.size() != dto.getEmpresaIds().size()) {
-                throw new RegraNegocioException("Uma ou mais empresas informadas não existem.");
-            }
-        }
 // Cria um fornecedor temporário para validar a regra de menor de idade
         Fornecedor fornecedorTemp = new Fornecedor();
         fornecedorTemp.setCpfCnpj(dto.getCpfCnpj());
         fornecedorTemp.setDataNascimento(dto.getDataNascimento());
 
-        FornecedorValidator.validarFornecedorMenorDeIdadeComEmpresaPR(novasEmpresas, fornecedorTemp);
-
-       // Remove o fornecedor das empresas antigas
-        List<Empresa> empresasAntigas = new ArrayList<>(fornecedor.getEmpresas());
-        for (Empresa antiga : empresasAntigas) {
-            antiga.getFornecedores().remove(fornecedor);
-        }
-
-        // Adiciona o fornecedor às novas empresas
-        for (Empresa nova : novasEmpresas) {
-            if (!nova.getFornecedores().contains(fornecedor)) {
-                nova.getFornecedores().add(fornecedor);
-            }
-        }
-
-        // Atualiza a lista do próprio fornecedor
-        fornecedor.setEmpresas(novasEmpresas);
-
-        // Salva empresas para persistir a relação
-        empresaRepository.saveAll(empresasAntigas);
-        empresaRepository.saveAll(novasEmpresas);
-
-
+        FornecedorValidator.validarFornecedorMenorDeIdadeComEmpresaPR(novasEmpresas , fornecedorTemp);
         fornecedor.setCpfCnpj(dto.getCpfCnpj());
         fornecedor.setNome(dto.getNome());
         fornecedor.setEmail(dto.getEmail());
         fornecedor.setRg(dto.getRg());
         fornecedor.setDataNascimento(dto.getDataNascimento());
         fornecedor.setCep(cep);
+        fornecedor.setEstado(estado);
+        fornecedor.setCidade(cidade);
+        // Verifica se houve alteração nos vínculos com empresas
+        // Atualiza vínculos de empresas
+        Set<Empresa> antigasEmpresas = new HashSet<>(fornecedor.getEmpresas());
+
+        // Remover as que não estão mais presentes
+        for (Empresa antiga : antigasEmpresas) {
+            if (!novasEmpresas.contains(antiga)) {
+                antiga.getFornecedores().remove(fornecedor);
+            }
+        }
+
+        // Adicionar novas empresas, se ainda não estiverem vinculadas
+        for (Empresa nova : novasEmpresas) {
+            if (!nova.getFornecedores().contains(fornecedor)) {
+                nova.getFornecedores().add(fornecedor);
+            }
+        }
+
+        fornecedor.setEmpresas(new HashSet<>(novasEmpresas));
+
+        empresaRepository.saveAll(antigasEmpresas); // salva desvinculações
+        empresaRepository.saveAll(novasEmpresas);   // salva novos vínculos
+
         return fornecedorRepository.save(fornecedor);
+
     }
+
+
+    private List<Empresa> buscarEmpresas(List<Long> empresaIds) {
+        if (empresaIds == null || empresaIds.isEmpty()) return new ArrayList<>();
+        List<Empresa> empresas = empresaRepository.findAllById(empresaIds);
+        if (empresas.size() != empresaIds.size()) {
+            throw new RegraNegocioException("Uma ou mais empresas informadas não existem.");
+        }
+        return empresas;
+    }
+
 
     // Deletar Fornecedor
     public void deletarFornecedor(Long id) {

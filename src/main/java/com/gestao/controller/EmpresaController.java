@@ -36,7 +36,7 @@ public class EmpresaController {
         Empresa empresa=   this.empresaService.salvar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(empresa);
     }
-     @GetMapping
+    @GetMapping
     public ResponseEntity<List<Empresa>> listarComFiltro(
             @RequestParam(required = false) String nomeFantasia,
             @RequestParam(required = false) String cnpj) {

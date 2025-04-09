@@ -6,11 +6,12 @@ import java.util.Scanner;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gestao.domain.CepResponse;
 import com.gestao.infra.exceptions.RegraNegocioException;
 
 public class CepUtils {
 
-    public static String buscarUfPorCep(String cep) {
+    public static CepResponse buscarUfPorCep(String cep) {
         try {
             URL url = new URL("https://viacep.com.br/ws/" + cep + "/json/");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -32,8 +33,11 @@ public class CepUtils {
             if (jsonNode.has("erro") && jsonNode.get("erro").asBoolean()) {
                 throw new RegraNegocioException("CEP inválido.");
             }
+            String uf = jsonNode.get("uf").asText();
+            String localidade = jsonNode.get("localidade").asText(); // cidade
 
-            return jsonNode.get("uf").asText();
+            return new CepResponse(uf, localidade);
+//            return jsonNode.get("uf").asText();
 
         } catch (IOException e) {
             throw new RuntimeException("Erro ao buscar o estado pelo CEP: " + e.getMessage(), e);

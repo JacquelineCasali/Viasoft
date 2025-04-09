@@ -6,40 +6,38 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(MultiplasRegrasException.class)
+    public ResponseEntity<?> handleMultiplasRegras(MultiplasRegrasException ex) {
+        return ResponseEntity.badRequest().body(Map.of("erros", ex.getMensagens()));
+    }
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
+        var mensagens = ex.getBindingResult().getFieldErrors().stream()
+                .map(error -> error.getDefaultMessage())
+                .toList();
 
-        ex.getBindingResult().getFieldErrors().forEach(error ->
-                errors.put(error.getField(), error.getDefaultMessage())
-        );
-
-        return ResponseEntity.badRequest().body(errors);
+        return ResponseEntity.badRequest().body(Map.of("erros", mensagens));
     }
 
-
-    @ExceptionHandler(RecursoNaoEncontradoException.class)
-    public ResponseEntity<?> handleRecursoNaoEncontrado(RecursoNaoEncontradoException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("erro", ex.getMessage()));
+    @ExceptionHandler({
+            RecursoNaoEncontradoException.class,
+            RegraNegocioException.class,
+            FornecedorNaoEncontradoException.class
+    })
+    public ResponseEntity<?> handlePersonalizadas(RuntimeException ex) {
+        return ResponseEntity.badRequest().body(Map.of("erros", List.of(ex.getMessage())));
     }
-
-    @ExceptionHandler(RegraNegocioException.class)
-    public ResponseEntity<?> handleRegraNegocio(RegraNegocioException ex) {
-        return ResponseEntity.badRequest().body(Map.of("erro", ex.getMessage()));
-    }
-    @ExceptionHandler(FornecedorNaoEncontradoException.class)
-    public ResponseEntity<?> handleFornecedorNaoEncontrado(FornecedorNaoEncontradoException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("erro", ex.getMessage()));
-    }
-
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleOutras(Exception ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("erro", "Erro interno: " + ex.getMessage()));
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("erros", List.of("Erro interno: " + ex.getMessage())));
     }
 }

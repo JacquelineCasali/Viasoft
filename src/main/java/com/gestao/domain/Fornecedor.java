@@ -8,9 +8,7 @@ import lombok.*;
 
 import jakarta.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
+import java.util.*;
 
 
 @Entity
@@ -36,16 +34,16 @@ public class Fornecedor {
     @NotBlank(message = "CEP é obrigatório")
     private String cep;
     private String estado;
-
+    private String cidade;
     private String rg;
 
     private LocalDate dataNascimento;
 
+    @ManyToMany(mappedBy = "fornecedores", fetch = FetchType.EAGER
+           )
+ @JsonIgnoreProperties("fornecedores")
 
-
-    @ManyToMany(mappedBy="fornecedores")
-    @JsonIgnoreProperties("fornecedores")
-    private List<Empresa> empresas=new ArrayList<>();
+    private Set<Empresa> empresas= new HashSet<>();;
 
 
     @AssertTrue(message = "RG e data de nascimento são obrigatórios para pessoa física (CPF)")
@@ -62,6 +60,15 @@ public class Fornecedor {
         return rgValido && dataNascimentoValida;
     }
 
-
-
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Fornecedor that = (Fornecedor) o;
+        return id != null && id.equals(that.id);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

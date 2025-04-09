@@ -17,6 +17,7 @@ public interface FornecedorRepository extends JpaRepository<Fornecedor,Long> {
     boolean existsByCpfCnpj(String cpfCnpj);
 
 
+
 //    A listagem de fornecedores deverá conter filtros por Nome e CPF/CNPJ
 
     @Query("SELECT f FROM Fornecedor f WHERE " +

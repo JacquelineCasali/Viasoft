@@ -19,6 +19,8 @@ import java.util.Set;
 @AllArgsConstructor
 
 public class FornecedorDTO {
+    private Long id;
+
     @NotBlank(message = "CPF/CNPJ é obrigatório")
     private String cpfCnpj;
     @NotBlank(message = "Nome é obrigatório")
@@ -29,9 +31,10 @@ public class FornecedorDTO {
     @NotBlank(message = "CEP é obrigatório")
     private String cep;
     private String estado;
+    private String cidade;
     private String rg;
     private LocalDate dataNascimento;
-private List<Long> empresaIds;
+    private List<Long> empresaIds;
 
     public boolean isPessoaFisica() {
         if (cpfCnpj == null) return false;
