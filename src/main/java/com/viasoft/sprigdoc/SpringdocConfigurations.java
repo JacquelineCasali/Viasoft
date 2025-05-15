@@ -1,4 +1,4 @@
-package com.gestao.sprigdoc;
+package com.viasoft.sprigdoc;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -13,8 +13,8 @@ public class SpringdocConfigurations {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 //@OpenAPIDefinition(
-                .info(new Info().title("Sistema de Gestão")
-                        .description("Api responsável fazer CRUD e validações")
+                .info(new Info().title("Viasoft")
+                        .description("Api responsável por enviar email pelas plataformas AWS e OCI ")
                         .version("1")
                 )
 

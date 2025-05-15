@@ -8,11 +8,11 @@
 		<version>3.3.3</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.gestao</groupId>
-	<artifactId>gestao</artifactId>
+	<groupId>com.viasoft</groupId>
+	<artifactId>viasoft</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>gestao</name>
-	<description>Sistema de gestão de empresas e fornecedores</description>
+	<name>viasoft</name>
+	<description>Api responsável por enviar email pelas plataformas AWS e OCI</description>
 
 	<properties>
 		<java.version>17</java.version>
