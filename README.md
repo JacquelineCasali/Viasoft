@@ -1,10 +1,10 @@
-## Desafio Full-Stack (Spring Boot + Angular)
+## Desafio Back-End Viasoft
 
-Este projeto é uma aplicação Full-Stack desenvolvida utilizando Spring Boot no back-end e Angular no front-end. O sistema permite a gestão de empresas e fornecedores, garantindo regras de negócio como validação de CPF/CNPJ, restrição de idade para fornecedores pessoa física no Paraná e integração com API de CEP.
-
+Imagine (sem realizar a integração) que você precisa enviar e-mail mediante plataformas como AWS e OCI.
+O teste consiste em criar uma aplicação REST com endpoint que recebe dados para envio de email, com apenas uma requisição, sem alterar o objeto de entrada, dependendo da configuração setada em application.properties o objeto deve ser adaptado para novas classes, também deve ser serializado e impresso no console.
 ## 🎥Vídeo do projeto 
 
-[Gravando 2025-04-06 121057.mp4](..%2FGravando%202025-04-06%20121057.mp4)
+
 
 ## 🚀 Tecnologias Utilizadas
 
@@ -19,31 +19,8 @@ Este projeto é uma aplicação Full-Stack desenvolvida utilizando Spring Boot n
 - **[springdoc (Documentação da API)]**
 - **[cors]**
 
-## Frontend:
-
-- Angular (Framework front-end)
-- TypeScript
-- Bootstrap (Para estilização)
-
 ## ⚙️ Funcionalidades
 
-✅Cadastro de Empresas (com nome, CNPJ, CEP, e-mail)
-
-✅Cadastro de Fornecedores (pessoa física e jurídica)
-
-✅Validações:
-
-✅CPF/CNPJ
-
-✅Idade mínima para fornecedores pessoa física no Paraná
-
-✅RG e Data de Nascimento obrigatórios para pessoa física
-
-✅Integração com API de CEP para busca de endereços
-
-✅Listagem e Filtros por Nome e CPF/CNPJ
-
-✅Edição e Exclusão de empresas e fornecedores
 
 ## 🚀 Como Rodar o Projeto
 
@@ -70,23 +47,13 @@ Execute o seguinte comando na raiz do projeto backend:
 Pré-requisitos: Java 17
 
 # clonar repositório
-git clone https://github.com/JacquelineCasali/Teste-de-Sistema-de-gestao.git
+git clone https://github.com/JacquelineCasali/Viasoft.git
 
 # executar o projeto
 ./mvnw spring-boot:run
 
 A API estará disponível em: http://localhost:8080
 
-
-📌 4. Rodar o Frontend (Angular)
-Entre na pasta do frontend e execute:
-
-- npm install  # Instalar dependências
-- ng serve     # Rodar o projeto
-  O frontend estará acessível em: http://localhost:4200
-- 
-# clonar repositório
-git clone https://github.com/JacquelineCasali/Teste-de-Sistema-de-gestao-angular.git
 
 📖 Documentação da API
 
