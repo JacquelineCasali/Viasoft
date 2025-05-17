@@ -6,6 +6,8 @@ import com.viasoft.dto.EmailDTO;
 import com.viasoft.dto.EmailOciDTO;
 import com.viasoft.enums.ProvedorIntegracao;
 import com.viasoft.exception.EmailProcessingException;
+import com.viasoft.strategy.EmailStrategy;
+import com.viasoft.strategy.EmailStrategyFactory;
 import com.viasoft.util.JsonUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,39 +20,17 @@ public class EmailService {
     @Value("${mail.integracao}")
     private String integracao;
 
-    // converter dados entre sistemas exemplo de json para xml
-    private final ObjectMapper objectMapper;
+    private final EmailStrategyFactory emailStrategyFactory;
 
 
     public void processarEmail(@Valid EmailDTO email) {
         try {
-            ProvedorIntegracao provedor = ProvedorIntegracao.from(integracao);
 
-            switch (provedor) {
-                case AWS -> {
-                    EmailAwsDTO awsDTO = new EmailAwsDTO(
-                            email.getEmailDestinatario(),
-                            email.getNomeDestinatario(),
-                            email.getEmailRemetente(),
-                            email.getAssunto(),
-                            email.getConteudo()
-                    );
-                    System.out.println(JsonUtil.serialize(awsDTO));
-                }
-                case OCI -> {
-                    EmailOciDTO ociDTO = new EmailOciDTO(
-                            email.getEmailDestinatario(),
-                            email.getNomeDestinatario(),
-                            email.getEmailRemetente(),
-                            email.getAssunto(),
-                            email.getConteudo()
-                    );
-                    System.out.println(JsonUtil.serialize(ociDTO));
-                }
-            }
-        } catch (IllegalArgumentException e) {
-            throw new EmailProcessingException("Valor inválido para mail.integracao: " + integracao);
+ProvedorIntegracao provedor=ProvedorIntegracao.from(integracao);
+            EmailStrategy emailStrategy = emailStrategyFactory.getStrategy(provedor);
+            emailStrategy.enviar(email);
         } catch (Exception e) {
             throw new EmailProcessingException("Erro ao processar email: " + e.getMessage());
         }
-    }}
+    }
+}
