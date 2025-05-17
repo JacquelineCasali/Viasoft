@@ -1,4 +1,4 @@
-package com.viasoft.strategy;
+package com.viasoft.email;
 
 import com.viasoft.dto.EmailAwsDTO;
 import com.viasoft.dto.EmailDTO;
@@ -6,7 +6,7 @@ import com.viasoft.util.JsonUtil;
 import org.springframework.stereotype.Component;
 
 @Component
-public class EmailAwsStrategy implements EmailStrategy {
+public class EmailAws implements Emails {
 
     @Override
     public void enviar(EmailDTO email){

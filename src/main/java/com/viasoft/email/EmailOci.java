@@ -1,4 +1,4 @@
-package com.viasoft.strategy;
+package com.viasoft.email;
 
 import com.viasoft.dto.EmailDTO;
 import com.viasoft.dto.EmailOciDTO;
@@ -6,7 +6,7 @@ import com.viasoft.util.JsonUtil;
 import org.springframework.stereotype.Component;
 
 @Component
-public class EmailOciStrategy implements  EmailStrategy {
+public class EmailOci implements Emails {
 
     @Override
   public void enviar(EmailDTO email){

@@ -1,4 +1,4 @@
-package com.viasoft.strategy;
+package com.viasoft.email;
 
 
 import com.viasoft.enums.ProvedorIntegracao;
@@ -8,11 +8,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class EmailStrategyFactory {
-    private final EmailAwsStrategy emailAwsStrategy;
-    private final EmailOciStrategy emailOciStrategy;
+public class EmailFactory {
+    private final EmailAws emailAwsStrategy;
+    private final EmailOci emailOciStrategy;
 
-    public EmailStrategy getStrategy(ProvedorIntegracao integracao) {
+    public Emails getStrategy(ProvedorIntegracao integracao) {
         return switch (integracao) {
             case AWS -> emailAwsStrategy;
             case OCI -> emailOciStrategy;

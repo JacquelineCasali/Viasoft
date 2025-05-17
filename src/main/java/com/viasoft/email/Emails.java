@@ -1,7 +1,7 @@
-package com.viasoft.strategy;
+package com.viasoft.email;
 
 import com.viasoft.dto.EmailDTO;
 
-public interface EmailStrategy {
+public interface Emails {
     void enviar(EmailDTO email);
 }

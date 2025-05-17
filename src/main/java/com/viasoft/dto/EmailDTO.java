@@ -17,7 +17,6 @@ public class EmailDTO {
     private String emailRemetente;
     @NotBlank(message = "Preencha o Assunto do Email campo obrigatório")
     private String assunto;
-
     @NotBlank(message = "Preencha o conteudo do Email campo obrigatório")
     private String conteudo;
 

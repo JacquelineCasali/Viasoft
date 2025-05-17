@@ -19,8 +19,6 @@ public class EmailController {
 
 
     private final EmailService emailService;
-
-
     @PostMapping
     public ResponseEntity<Void> enviarEmail(@Valid @RequestBody EmailDTO email) {
         emailService.processarEmail(email);
